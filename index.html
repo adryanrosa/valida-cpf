@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Valida CPF</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* paleta coolors: fffd82 · 280003 · 355834 · dd1c1a · ffa737 */
+    --amarelo: #fffd82;         /* canary yellow — fundo papel */
+    --ambar: #ffa737;           /* amber glow — marca-texto e detalhes */
+    --amarelo-claro: color-mix(in srgb, var(--ambar) 25%, #fff); /* amber glow clareado, 75% branco */
+    --verde: #355834;           /* hunter green — sucesso */
+    --verde-claro: color-mix(in srgb, var(--verde) 8%, #fff); /* hunter green clareado */
+    --vermelho: #dd1c1a;        /* primary scarlet — ação e erro */
+    --preto: #280003;           /* rich mahogany — tinta/tinta de texto */
+    --papel: #fffef2;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: "Archivo", system-ui, sans-serif;
+    color: var(--preto);
+    background-color: var(--amarelo);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+  }
+
+  .card {
+    background: var(--papel);
+    border: 2px solid var(--preto);
+    border-radius: 16px;
+    box-shadow: 6px 6px 0 var(--vermelho);
+    padding: 40px 36px 32px;
+    max-width: 430px;
+    width: 100%;
+    position: relative;
+  }
+
+  h1 {
+    font-family: "Archivo Black", sans-serif;
+    font-size: clamp(2.2rem, 9vw, 2.8rem);
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    margin-bottom: 10px;
+  }
+  h1 em {
+    font-style: normal;
+    color: var(--vermelho);
+    /* marca-texto amarelo no subtítulo-título */
+    background: linear-gradient(transparent 55%, var(--amarelo-claro) 55%);
+  }
+
+  p.sub {
+    font-size: .95rem;
+    color: color-mix(in srgb, var(--preto) 72%, var(--papel));
+    margin-bottom: 28px;
+    max-width: 30ch;
+  }
+
+  label {
+    display: block;
+    font-weight: 700;
+    font-size: .8rem;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    margin-bottom: 8px;
+  }
+
+  input {
+    width: 100%;
+    padding: 14px 16px;
+    font-family: "Archivo", sans-serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    letter-spacing: .5px;
+    color: var(--preto);
+    background: var(--amarelo-claro);
+    border: 2px solid var(--preto);
+    border-radius: 10px;
+    outline: none;
+    transition: box-shadow .12s ease, transform .12s ease;
+  }
+  input::placeholder { color: color-mix(in srgb, var(--preto) 38%, var(--amarelo-claro)); font-weight: 400; }
+  input:focus {
+    box-shadow: 3px 3px 0 var(--vermelho);
+    transform: translate(-1px, -1px);
+  }
+
+  button {
+    width: 100%;
+    margin-top: 16px;
+    padding: 14px;
+    font-family: "Archivo Black", sans-serif;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--papel);
+    background: var(--vermelho);
+    border: 2px solid var(--preto);
+    border-radius: 10px;
+    box-shadow: 4px 4px 0 var(--preto);
+    cursor: pointer;
+    transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+  }
+  button:hover:not(:disabled) {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 var(--preto);
+  }
+  button:active:not(:disabled) {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 var(--preto);
+  }
+  button:disabled {
+    background: color-mix(in srgb, var(--preto) 62%, var(--amarelo-claro));
+    color: color-mix(in srgb, var(--papel) 70%, var(--preto));
+    box-shadow: 4px 4px 0 color-mix(in srgb, var(--preto) 30%, var(--amarelo-claro));
+    cursor: default;
+  }
+
+  .resultado {
+    /* espaço já reservado, com placeholder enquando não valida */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+    padding: 13px 16px;
+    border: 2px dashed color-mix(in srgb, var(--preto) 35%, var(--papel));
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: color-mix(in srgb, var(--preto) 40%, var(--papel));
+  }
+  .resultado .icone {
+    font-family: "Archivo Black", sans-serif;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    flex: none;
+    font-size: .9rem;
+  }
+  .resultado .icone { border-color: color-mix(in srgb, var(--preto) 35%, var(--papel)); }
+  .resultado.erro, .resultado.ok { visibility: visible; border-color: var(--preto); border-style: solid; }
+  .resultado.erro .icone, .resultado.ok .icone { border-color: transparent; }
+  .resultado.erro { background: var(--preto); color: var(--papel); }
+  .resultado.erro .icone { background: var(--papel); color: var(--preto); }
+  .resultado.ok { background: var(--verde-claro); color: var(--verde); }
+  .resultado.ok .icone { background: var(--verde); color: var(--verde-claro); }
+
+  .nota {
+    margin-top: 20px;
+    font-size: .76rem;
+    line-height: 1.5;
+    color: color-mix(in srgb, var(--preto) 52%, var(--papel));
+    border-top: 2px dashed color-mix(in srgb, var(--preto) 22%, var(--papel));
+    padding-top: 14px;
+  }
+</style>
+</head>
+<body>
+  <main class="card">
+    <h1>Valida <em>CPF</em></h1>
+    <p class="sub">Digite o CPF e saiba se ele é válido.</p>
+
+    <label for="cpf">CPF</label>
+    <input id="cpf" inputmode="numeric" autocomplete="off"
+           placeholder="000.000.000-00" maxlength="14" autofocus>
+    <button id="btn" disabled>Validar</button>
+
+    <div id="resultado" class="resultado" role="status">
+      <span class="icone">?</span><span class="texto">O resultado aparece aqui</span>
+    </div>
+
+    <p class="nota">
+      A validação confere os dígitos verificadores do CPF (algoritmo oficial).
+      Não consulta a Receita Federal.
+    </p>
+  </main>
+
+<script>
+const input = document.getElementById("cpf");
+const btn = document.getElementById("btn");
+const resultado = document.getElementById("resultado");
+const icone = resultado.querySelector(".icone");
+const texto = resultado.querySelector(".texto");
+
+// Máscara 000.000.000-00 enquanto digita
+input.addEventListener("input", () => {
+  let d = input.value.replace(/\D/g, "").slice(0, 11);
+  let out = d;
+  if (d.length > 9)      out = `${d.slice(0,3)}.${d.slice(3,6)}.${d.slice(6,9)}-${d.slice(9)}`;
+  else if (d.length > 6) out = `${d.slice(0,3)}.${d.slice(3,6)}.${d.slice(6)}`;
+  else if (d.length > 3) out = `${d.slice(0,3)}.${d.slice(3)}`;
+  if (input.value !== out) input.value = out;
+  btn.disabled = d.length !== 11;
+  // volta pro placeholder enquando digita
+  resultado.className = "resultado";
+  icone.textContent = "?";
+  texto.textContent = "O resultado aparece aqui";
+});
+
+btn.addEventListener("click", validar);
+input.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !btn.disabled) validar();
+});
+
+function validar() {
+  const cpf = input.value.replace(/\D/g, "");
+
+  // 11 dígitos e não pode ser sequência repetida (111.111.111-11 etc.)
+  if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) {
+    mostrar("CPF inválido.", false);
+    return;
+  }
+
+  // Dígitos verificadores (algoritmo oficial)
+  const calcularDigito = (peso) => {
+    let soma = 0;
+    for (let i = 0; i < peso - 1; i++) soma += Number(cpf[i]) * (peso - i);
+    const r = (soma * 10) % 11;
+    return r === 10 ? 0 : r;
+  };
+
+  const valido =
+    calcularDigito(10) === Number(cpf[9]) &&
+    calcularDigito(11) === Number(cpf[10]);
+
+  mostrar(valido ? "CPF válido" : "CPF inválido", valido);
+}
+
+function mostrar(msg, ok) {
+  icone.textContent = ok ? "✓" : "✕";
+  texto.textContent = msg;
+  resultado.className = "resultado " + (ok ? "ok" : "erro");
+}
+</script>
+</body>
+</html>
